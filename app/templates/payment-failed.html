@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2 style="color: #c62828;">Payment Failed ❌</h2>
+    <p>Hello {{ name }},</p>
+    <p>Unfortunately, the payment for your <strong>Order #{{ order_id }}</strong> could not be processed.</p>
+    <p><strong>Reason:</strong> {{ error_message or "General payment declined" }}</p>
+    <p>Don't worry, your order is still saved as <strong>PENDING</strong>. You can try the payment again from your order history page.</p>
+    <a href="{{ checkout_url }}" style="padding: 10px; background: #1976d2; color: white; text-decoration: none;">Try Again</a>
+</body>
+</html>
