@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; padding: 20px; }
+        .header { background-color: #2c3e50; color: white; padding: 10px; text-align: center; border-radius: 5px 5px 0 0; }
+        .details { margin: 20px 0; line-height: 1.6; }
+        .item-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .item-table th { background-color: #f8f9fa; border-bottom: 2px solid #dee2e6; padding: 10px; text-align: left; }
+        .item-table td { padding: 10px; border-bottom: 1px solid #eee; }
+        .footer { font-size: 12px; color: #7f8c8d; text-align: center; margin-top: 30px; }
+        .badge { background-color: #e67e22; color: white; padding: 4px 8px; border-radius: 4px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Order Alert!</h1>
+        </div>
+        <div class="details">
+            <p><strong>Customer:</strong> {{ customer_name }}</p>
+            <p><strong>Order ID:</strong> <span class="badge">#{{ order_id }}</span></p>
+            <p><strong>Order Status:</strong> <span class="badge">{{ order_status }}</span></p>
+            <p><strong>Payment Status:</strong> {{ payment_status | default('NOT YET PAID') }}</p>
+            <p><strong>Date:</strong> {{ order_date }}</p>
+            <p><strong>Shipping Address:</strong><br>{{ address }}</p>
+        </div>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.unit_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="text-align:right; font-weight:bold;">Total:</td>
+                    <td style="font-weight:bold; color: #27ae60;">${{ total }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="footer">
+            <p>This is an automated notification from the E-Commerce Backend.</p>
+            <p><a href="{{ admin_dashboard_url }}" style="color: #3498db;">View Order in Dashboard</a></p>
+        </div>
+    </div>
+</body>
+</html>

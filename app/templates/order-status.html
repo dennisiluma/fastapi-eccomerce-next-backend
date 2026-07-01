@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        .status-box {
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .SHIPPED {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .DELIVERED {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* ... existing styles ... */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            text-align: left;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .total-row {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Order Status Update</h2>
+    <p>Hello <strong>{{ name }}</strong>,</p>
+    <p>Your order <strong>#{{ order_id }}</strong> has been updated to:</p>
+
+    <div class="status-box {{ status }}">
+        {{ status }}
+    </div>
+
+    <h3>Order Summary</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.name if item.product else "Unknown Product" }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ "{:.2f}".format(item.unit_price) }}</td>
+                <td>${{ "{:.2f}".format(item.unit_price * item.quantity) }}</td>
+            </tr>
+            {% endfor %}
+
+            <tr class="total-row">
+                <td colspan="3" style="text-align: right;">Total Paid:</td>
+                <td>${{ "{:.2f}".format(total_price) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p><strong>Shipping to:</strong><br>{{ address }}</p>
+</body>
+
+</html>
