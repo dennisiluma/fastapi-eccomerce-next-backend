@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     PAYMENT_CONFIRMATION_URL:str
     PAYMENT_CANCEL_URL:str
 
+    # GOOGLE OAUTH CREDENTIAL
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
+
 
 
     # -- LOAD CONFIGURATION --

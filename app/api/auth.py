@@ -1,6 +1,11 @@
-from fastapi import APIRouter, Depends, status
+import traceback
+
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 
+from urllib.parse import urlencode
+from app.core.config import settings
 from app.db.session import get_session
 from app.schemas.response import ApiResponse
 from app.schemas.user import (
@@ -11,6 +16,7 @@ from app.schemas.user import (
     UserLogin,
     UserRead,
 )
+from app.services.google_auth import generate_user_token, process_google_callback_workflow
 from app.services.user import login_user, process_forgot_password, process_reset_password, register_new_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -65,3 +71,69 @@ async def reset_password(
         status=status.HTTP_200_OK,
         message="Password Reset Successfully"
     )
+
+
+@router.get("/google")
+async def google_login():
+
+    params = {
+        'client_id': settings.GOOGLE_CLIENT_ID,
+        'redirect_uri': f"{settings.BACKEND_URL}/api/auth/google/callback",
+        'response_type': 'code',
+        'scope': 'email profile',
+        'access_type': 'offline',
+    }
+    
+    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
+    print(f"🔐 Google login initiated")
+    print(f"   Redirect URI: {params['redirect_uri']}")
+    
+    return RedirectResponse(url=auth_url)
+
+
+
+
+@router.get("/google/callback")
+async def google_callback(
+    request: Request, 
+    code: str = None,
+    db: Session = Depends(get_session)
+):
+    print("=" * 60)
+    print("📞 Google Callback Received")
+
+    # Catch structural OAuth errors dropped as URL parameters early
+    error = request.query_params.get('error')
+    if error:
+        print(f"❌ Google returned error: {error}")
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/auth-error?error={error}")
+    
+    if not code:
+        print("❌ No authorization code received")
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/auth-error?error=No authorization code")
+    
+    try:
+        user = await process_google_callback_workflow(db, code)
+        
+        # Build app context tracking credentials
+        auth_token = await generate_user_token(user)
+        print(f"🔑 JWT token generated for user ID: {user.id}, Role: {user.role}")
+        
+        redirect_url = f"{settings.FRONTEND_URL}/auth-success?token={auth_token}&role={user.role}"
+        print(f"🔄 Redirecting to: {redirect_url}")
+        print("=" * 60)
+        return RedirectResponse(url=redirect_url)
+        
+    except ValueError as val_err:
+        print(f"⚠️ Validation error encountered during OAuth handling: {val_err}")
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/auth-error?error={str(val_err)}")
+    except Exception as e:
+        print(f"❌ ERROR in Google callback pipeline: {str(e)}")
+        traceback.print_exc()
+        return RedirectResponse(url=f"{settings.FRONTEND_URL}/auth-error?error=Unexpected authentication fault processing request.")
+
+
+
+
+
+    
