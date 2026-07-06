@@ -1,0 +1,51 @@
+name: Ecommerce API Service CI/CD
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+
+jobs:
+  # --- STAGE 1: VALIDATION ---
+  build-verification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv and Verify Project Dependencies
+        run: |
+          pip install uv
+          uv pip compile pyproject.toml --quiet
+
+      - name: Verify Docker Build Natively
+        run: |
+          docker build -t local-test-build:latest .
+
+
+
+  # --- STAGE 2: DEPLOYMENT (Only runs on main, AFTER validation passes) ---
+  deploy:
+    needs: build-verification
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into Ubuntu EC2 and Update Service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/projects/fastapi-eccomerce-next-backend
+            git pull origin main
+            docker compose rm -f -s -v ecommerce-api
+            docker compose up -d --build ecommerce-api
+            docker image prune -f
