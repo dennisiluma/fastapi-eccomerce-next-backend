@@ -18,23 +18,6 @@ class OrderStatusUpdate(BaseModel):
 
 
 
-class OrderRead(BaseModel):
-    id: int
-    user_id: int
-    total_price: Decimal
-    status: OrderStatus
-    shipping_address: str
-    created_at: datetime
-    items: List[OrderItemRead] = []
-    
-    
-
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        from_attributes=True
-    )
-
 
 class OrderItemRead(BaseModel):
     id: int
@@ -67,6 +50,26 @@ class OrderItemRead(BaseModel):
     @computed_field
     def subtotal(self) -> Decimal:
         return self.quantity * self.unit_price
+
+
+class OrderRead(BaseModel):
+    id: int
+    user_id: int
+    total_price: Decimal
+    status: OrderStatus
+    shipping_address: str
+    created_at: datetime
+    items: List[OrderItemRead] = []
+    
+    
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True
+    )
+
+
 
 
     
