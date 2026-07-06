@@ -15,7 +15,7 @@ from app.models.reset_code import ResetCode
 from app.models.user import User
 from app.schemas.user import PasswordUpdate, ResetPasswordRequest, TokenData, UserCreate, UserLogin, UserUpdate
 from app.services.email import send_reset_password_email, send_welcome_email
-from app.services.upload import upload_file, upload_to_s3
+from app.services.upload import upload_file, upload_file_to_frontend, upload_to_s3
 
 password_hasher = PasswordHash.recommended()
 
@@ -183,11 +183,14 @@ async def change_user_password(db: Session, user: User, password_data: PasswordU
 
 async def upload_profile_pix(db: Session, user: User, file: UploadFile):
 
-    UPLOAD_DIR = Path("uploads/profile")
-
-    # image_path = await upload_file(file, UPLOAD_DIR) #this will uplaod to your folder ehre
+    UPLOAD_DIR_FRONTEND = Path("/Users/mac/tuts/fastapi-eccomerce-next-frontend/public/profile") #this will be the dir to upload to on frontend
+    
+    UPLOAD_DIR = Path("uploads/profile") # if you are uploading to backed or aws
+    
+    # image_path = await upload_file(file, UPLOAD_DIR) #to upload images to your backend
 
     image_path = await upload_to_s3(file, UPLOAD_DIR) #this will uplaod to aws s3
+    # image_path = await upload_file_to_frontend(file, UPLOAD_DIR_FRONTEND) #this will uplaod images to frontend
     user.profile_picture = image_path
 
 
@@ -196,3 +199,5 @@ async def upload_profile_pix(db: Session, user: User, file: UploadFile):
     await db.refresh(user)
     
     return image_path
+    
+
