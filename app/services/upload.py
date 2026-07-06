@@ -58,3 +58,24 @@ async def upload_file(file: UploadFile, upload_dir: Path) -> str:
         shutil.copyfileobj(file.file, buffer)
 
     return f"/{upload_dir}/{unique_name}"
+
+
+
+
+async def upload_file_to_frontend(file: UploadFile, upload_dir: Path) -> str:
+
+    
+    print("inside upload_file_to_frontend in upload.py")
+
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+
+    print("passed mkdir helding tp generate unique filename")
+
+    unique_name = f"{secrets.token_hex(2)}_{file.filename}"
+    file_path = upload_dir / unique_name
+
+    with file_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return f"/profile/{unique_name}"
