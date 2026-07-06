@@ -1,0 +1,9 @@
+services:
+  ecommerce-api: #the service name
+    build: .                    # Build image using Dockerfile in current directory
+    container_name: ecommerce-api
+    ports:
+      - "8084:8084"            # Map host port 8084 to container port 8084
+    env_file:
+      - .env                    # Load environment variables from .env file
+    restart: unless-stopped     # Auto-restart if crashes
