@@ -5,18 +5,6 @@ from pydantic.alias_generators import to_camel
 from pydantic import BaseModel, ConfigDict
 
 
-class CartRead(BaseModel):
-    id: int
-    user_id: int
-    items: List[CartItemRead]
-    total_quantity: int
-    total_price: Decimal
-
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-        from_attributes=True
-    )
 
 
 class CartItemRead(BaseModel):
@@ -33,6 +21,22 @@ class CartItemRead(BaseModel):
         populate_by_name=True,
         from_attributes=True
     )
+    
+
+class CartRead(BaseModel):
+    id: int
+    user_id: int
+    items: List[CartItemRead]
+    total_quantity: int
+    total_price: Decimal
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True
+    )
+
+
 
 
 
