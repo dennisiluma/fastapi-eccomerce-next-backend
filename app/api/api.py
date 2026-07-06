@@ -19,6 +19,11 @@ async def health_check():
     return {"message":"API is working"}
 
 
+@api_router.get('/new')
+async def health_check():
+    return {"message":"Added to test ci/cd auto deployment"}
+
+
 api_router.include_router(auth_router)
 api_router.include_router(users_router)
 api_router.include_router(category_router)
